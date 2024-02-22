@@ -1,54 +1,65 @@
-const ctx = document.getElementById("cryptoChart").getContext("2d");
-let chart;
+document.addEventListener("DOMContentLoaded", function () {
+  const ctx = document.getElementById("cryptoChart").getContext("2d");
+  const initialInvestment = {
+    btc: 0.03577764,
+    eth: 0.47519969,
+  };
 
-function fetchCryptoData() {
-  const apiUrl =
-    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd";
+  const initialBtcPrice = 50000;
+  const initialEthPrice = 4000;
 
-  fetch(apiUrl)
-    .then((response) => response.json())
-    .then((data) => {
+  let chart = initChart();
+
+  async function fetchCryptoData() {
+    const apiUrl =
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd";
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
       const btcPrice = data.bitcoin.usd;
       const ethPrice = data.ethereum.usd;
-      updateChart(chart, btcPrice, ethPrice);
-    })
-    .catch((error) => console.error("Error fetching data:", error));
-}
+      updateChart(btcPrice, ethPrice);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
 
-function initChart() {
-  chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["BTC", "ETH"],
-      datasets: [
-        {
-          label: "USD",
-          data: [0, 0],
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.2)",
-            "rgba(54, 162, 235, 0.2)",
-          ],
-          borderColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true,
+  function initChart() {
+    return new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Initial", "Current"],
+        datasets: [
+          {
+            label: "BTC",
+            data: [initialInvestment.btc * initialBtcPrice, 0],
+            borderColor: "rgba(255, 99, 132, 1)",
+            fill: false,
+          },
+          {
+            label: "ETH",
+            data: [initialInvestment.eth * initialEthPrice, 0],
+            borderColor: "rgba(54, 162, 235, 1)",
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: false,
+          },
         },
       },
-    },
-  });
-}
+    });
+  }
 
-function updateChart(chart, btcPrice, ethPrice) {
-  chart.data.datasets[0].data = [btcPrice, ethPrice];
-  chart.update();
-}
+  function updateChart(btcPrice, ethPrice) {
+    chart.data.datasets[0].data[1] = btcPrice * initialInvestment.btc;
+    chart.data.datasets[1].data[1] = ethPrice * initialInvestment.eth;
+    chart.update();
+  }
 
-initChart();
-fetchCryptoData();
-
-setInterval(fetchCryptoData, 60000);
+  fetchCryptoData();
+  setInterval(fetchCryptoData, 60000);
+});

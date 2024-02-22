@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
     eth: 0.47519969,
   };
 
-  const initialBtcPrice = 50000;
-  const initialEthPrice = 4000;
+  const initialBtcPrice = 48365.63;
+  const initialEthPrice = 3676.77;
 
   let chart = initChart();
 
